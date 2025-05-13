@@ -13,8 +13,8 @@ class AppointmentRepository:
         new_id = self.file_manager.generate_id()
         new_appointment = Appointment(
             id=new_id,
-            **appointment_data.model_dump(),
-            date_created=datetime.now(datetime.timezone.utc)
+            **appointment_data.dict(),
+            date_created=datetime.utcnow()
         )
         data.append(new_appointment.to_dict())
         self.file_manager.write_data(data)
@@ -48,9 +48,9 @@ class AppointmentRepository:
         data = self.file_manager.read_data()
         for record in data:
             if record['id'] == id and record.get('date_deleted') is None:
-                update_data = appointment_data.model_dump(exclude_unset=True)
+                update_data = appointment_data.dict(exclude_unset=True)
                 record.update(update_data)
-                record['date_updated'] = datetime.now(datetime.timezone.utc).isoformat()
+                record['date_updated'] = datetime.utcnow().isoformat()
                 self.file_manager.write_data(data)
                 return Appointment(**record)
         return None
