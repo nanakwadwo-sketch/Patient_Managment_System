@@ -1,0 +1,14 @@
+[
+    {
+        "id": 1,
+        "full_name": "Richard Osei",
+        "age": 90,
+        "gender": "male",
+        "contact_information": "123456879",
+        "address": "string",
+        "emergency_contact": "5555555",
+        "date_created": "2025-05-12T21:55:40.372100",
+        "date_updated": null,
+        "date_deleted": null
+    }
+]
