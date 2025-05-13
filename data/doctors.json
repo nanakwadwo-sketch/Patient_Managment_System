@@ -1,1 +1,12 @@
-[]
+[
+    {
+        "id": 1,
+        "full_name": "Dr Opoku",
+        "specialty": "Pedics",
+        "years_of_experience": 15,
+        "contact_information": "0245789654",
+        "date_created": "2025-05-13T09:24:04.201264",
+        "date_updated": null,
+        "date_deleted": null
+    }
+]

@@ -10,5 +10,17 @@
         "date_created": "2025-05-12T21:55:40.372100",
         "date_updated": null,
         "date_deleted": null
+    },
+    {
+        "id": 2,
+        "full_name": "Kofi Darko",
+        "age": 32,
+        "gender": "female",
+        "contact_information": "7272589",
+        "address": "Kumasi",
+        "emergency_contact": "333254876",
+        "date_created": "2025-05-13T09:15:35.868094",
+        "date_updated": null,
+        "date_deleted": null
     }
 ]

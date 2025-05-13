@@ -14,7 +14,7 @@ class DoctorRepository:
         new_doctor = Doctor(
             id=new_id,
             **doctor_data.dict(),
-            date_created=datetime.utcnow(datetime)
+            date_created=datetime.utcnow()
         )
         data.append(new_doctor.to_dict())
         self.file_manager.write_data(data)
