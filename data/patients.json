@@ -1,14 +1,14 @@
 [
     {
         "id": 1,
-        "full_name": "Richard Osei",
-        "age": 90,
+        "full_name": "Austin Akoto",
+        "age": 4,
         "gender": "male",
-        "contact_information": "123456879",
-        "address": "string",
-        "emergency_contact": "5555555",
+        "contact_information": "000000000000",
+        "address": "koforidua",
+        "emergency_contact": "1111111",
         "date_created": "2025-05-12T21:55:40.372100",
-        "date_updated": null,
+        "date_updated": "2025-05-13T09:35:26.132292",
         "date_deleted": null
     },
     {
