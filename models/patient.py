@@ -1,7 +1,10 @@
 from datetime import datetime
 from typing import Optional
+from .base import BaseModel
 
-class Patient:
+# This class represents a medical record in the health app.
+# It includes fields for patient ID, diagnosis, prescriptions, treatment date, and doctor notes.
+class Patient(BaseModel):
     def __init__(
         self,
         id: int,
@@ -15,27 +18,27 @@ class Patient:
         date_updated: Optional[datetime] = None,
         date_deleted: Optional[datetime] = None
     ):
-        self.id = id
+        
+        super().__init__(id, date_created, date_updated, date_deleted)
         self.full_name = full_name
         self.age = age
         self.gender = gender
         self.contact_information = contact_information
         self.address = address
         self.emergency_contact = emergency_contact
-        self.date_created = date_created
-        self.date_updated = date_updated
-        self.date_deleted = date_deleted
 
+
+
+    # This method converts the patient object to a dictionary representation.
+    # It is useful for serialization and storage.
     def to_dict(self):
         return {
-            "id": self.id,
+            **self.base_dict(),
             "full_name": self.full_name,
             "age": self.age,
             "gender": self.gender,
             "contact_information": self.contact_information,
             "address": self.address,
-            "emergency_contact": self.emergency_contact,
-            "date_created": self.date_created.isoformat(),
-            "date_updated": self.date_updated.isoformat() if self.date_updated else None,
-            "date_deleted": self.date_deleted.isoformat() if self.date_deleted else None
+            "emergency_contact": self.emergency_contact
         }
+        

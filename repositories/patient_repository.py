@@ -13,8 +13,8 @@ class PatientRepository:
         new_id = self.file_manager.generate_id()
         new_patient = Patient(
             id=new_id,
-            **patient_data.dict(),
-            date_created=datetime.utcnow()
+            **patient_data.model_dump(),
+            date_created=datetime.now(datetime.timetz).isoformat()
         )
         data.append(new_patient.to_dict())
         self.file_manager.write_data(data)

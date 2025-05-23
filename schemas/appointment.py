@@ -2,7 +2,10 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from .base import BaseResponse
 
+#class Appointment to represent an appointment in a healthcare system
+# It includes fields for patient ID, doctor ID, date and time of the appointment, and status of the appointment.
 class AppointmentStatus(str, Enum):
     SCHEDULED = "Scheduled"
     COMPLETED = "Completed"
@@ -23,11 +26,11 @@ class AppointmentUpdate(AppointmentBase):
     date_time: Optional[datetime] = None
     status: Optional[AppointmentStatus] = None
 
-class AppointmentResponse(AppointmentBase):
-    id: int
-    date_created: datetime
-    date_updated: Optional[datetime] = None
-    date_deleted: Optional[datetime] = None
+class AppointmentResponse(AppointmentBase, BaseResponse):
+    pass
+   
+    
+    
 
     class Config:
         from_attributes = True

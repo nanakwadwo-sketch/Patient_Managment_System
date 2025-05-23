@@ -1,8 +1,12 @@
 from datetime import datetime
 from typing import Optional
 from schemas.appointment import AppointmentStatus
+from.base import BaseModel
 
-class Appointment:
+
+# This class represents an appointment in the health app.
+# It includes fields for patient ID, doctor ID, date and time of the appointment, and status of the appointment.
+class Appointment(BaseModel):
     def __init__(
         self,
         id: int,
@@ -14,23 +18,18 @@ class Appointment:
         date_updated: Optional[datetime] = None,
         date_deleted: Optional[datetime] = None
     ):
-        self.id = id
+        super().__init__(id, date_created, date_updated, date_deleted)
         self.patient_id = patient_id
         self.doctor_id = doctor_id
         self.date_time = date_time
         self.status = status
-        self.date_created = date_created
-        self.date_updated = date_updated
-        self.date_deleted = date_deleted
 
+    # This method converts the appointment object to a dictionary representation.
     def to_dict(self):
         return {
-            "id": self.id,
+            **self.base_dict(),
             "patient_id": self.patient_id,
             "doctor_id": self.doctor_id,
             "date_time": self.date_time.isoformat(),
-            "status": self.status,
-            "date_created": self.date_created.isoformat(),
-            "date_updated": self.date_updated.isoformat() if self.date_updated else None,
-            "date_deleted": self.date_deleted.isoformat() if self.date_deleted else None
+            "status": self.status
         }

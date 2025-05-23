@@ -1,1 +1,12 @@
-[]
+[
+    {
+        "id": 1,
+        "patient_id": 1,
+        "doctor_id": 1,
+        "date_time": "2025-05-13T22:36:08.155000+00:00",
+        "status": "Scheduled",
+        "date_created": "2025-05-13T22:36:30.608505",
+        "date_updated": null,
+        "date_deleted": null
+    }
+]
