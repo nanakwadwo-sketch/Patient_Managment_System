@@ -1,1 +1,13 @@
-[]
+[
+    {
+        "id": 1,
+        "date_created": "2025-05-24T21:40:26.545625",
+        "date_updated": null,
+        "date_deleted": null,
+        "patient_id": 1,
+        "diagnosis": "malaria",
+        "prescriptions": "tab artemeter",
+        "treatment_date": "2025-05-24T21:39:11.517000+00:00",
+        "doctor_notes": "lab result proved 5000mps"
+    }
+]
