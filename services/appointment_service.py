@@ -14,8 +14,7 @@ class AppointmentService:
         self.doctor_repository = DoctorRepository()
 
     def create_appointment(self, appointment_data: AppointmentCreate) -> AppointmentResponse:
-       #Validate patient and doctor exist
-
+       #Validate patient and doctor if they exist
         if not self.patient_repository.get_by_id(appointment_data.patient_id):
             raise HTTPException(status_code=404, detail="Patient not found")
         if not self.doctor_repository.get_by_id(appointment_data.doctor_id):

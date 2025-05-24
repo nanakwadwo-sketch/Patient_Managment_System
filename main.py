@@ -3,7 +3,7 @@ from routers import patients, doctors, appointments, medical_records
 from middleware.log_request_time import log_request_time
 from utils.exceptions import add_exception_handlers
 
-app = FastAPI(title="Patient Medical Record Management System")
+app = FastAPI()
 
 # Add middleware
 app.middleware("http")(log_request_time)
