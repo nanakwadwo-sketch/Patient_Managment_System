@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from .base import BaseResponse
 
-#class Appointment to represent an appointment in a healthcare system
+#class AppointmentStatus to represent an appointment in a healthcare system
 # It includes fields for patient ID, doctor ID, date and time of the appointment, and status of the appointment.
 class AppointmentStatus(str, Enum):
     SCHEDULED = "Scheduled"
@@ -31,6 +31,6 @@ class AppointmentResponse(AppointmentBase, BaseResponse):
    
     
     
-
+# This class is used to define the configuration for the Pydantic model.
     class Config:
         from_attributes = True

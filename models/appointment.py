@@ -18,6 +18,7 @@ class Appointment(BaseModel):
         date_updated: Optional[datetime] = None,
         date_deleted: Optional[datetime] = None
     ):
+ # Initialize the appointment with its ID, patient ID, doctor ID, date and time, status, and timestamps.       
         super().__init__(id, date_created, date_updated, date_deleted)
         self.patient_id = patient_id
         self.doctor_id = doctor_id
