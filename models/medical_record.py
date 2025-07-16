@@ -3,34 +3,23 @@ from typing import Optional
 from .base import BaseModel
 
 # This class represents a medical record in the health app.
-class MedicalRecord(BaseModel):
-    def __init__(
-        self,
-        id: int,
-        patient_id: int,
-        diagnosis: str,
-        prescriptions: str,
-        treatment_date: datetime,
-        doctor_notes: str,
-        date_created: datetime,
-        date_updated: Optional[datetime] = None,
-        date_deleted: Optional[datetime] = None
-    ):
-        
-        super().__init__(id, date_created, date_updated, date_deleted)
-        self.patient_id = patient_id
-        self.diagnosis = diagnosis
-        self.prescriptions = prescriptions
-        self.treatment_date = treatment_date
-        self.doctor_notes = doctor_notes
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
+from models.database import Base
+from datetime import datetime
 
-    # This method converts the medical record object to a dictionary representation.
-    def to_dict(self):
-        return {
-            **self.base_dict(),
-            "patient_id": self.patient_id,
-            "diagnosis": self.diagnosis,
-            "prescriptions": self.prescriptions,
-            "treatment_date": self.treatment_date.isoformat(),
-            "doctor_notes": self.doctor_notes
-        }
+
+# MedicalRecord model to represent the medical record entity in the database
+class MedicalRecord(Base):
+    __tablename__ = "medical_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False)
+    diagnosis = Column(String(200), nullable=False)
+    prescriptions = Column(String(500), nullable=False)
+    treatment_date = Column(DateTime, nullable=False)
+    doctor_notes = Column(String(500), nullable=False)
+    date_created = Column(DateTime, nullable=False, default=func.now())
+    date_updated = Column(DateTime, nullable=True, onupdate=func.now())
+    date_deleted = Column(DateTime, nullable=True)
+   

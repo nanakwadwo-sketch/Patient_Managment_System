@@ -21,17 +21,12 @@ class PatientCreate(PatientBase):
 # class PatientUpdate to update an existing patient
 # It inherits from PatientBase and allows optional updates to all fields.
 class PatientUpdate(PatientBase):
-    full_name: Optional[str] = None
-    age: Optional[int] = None
-    gender: Optional[str] = None
-    contact_information: Optional[str] = None
-    address: Optional[str] = None
-    emergency_contact: Optional[str] = None
+   pass
 
 # class PatientResponse to represent a patient in the response
 # It inherits from PatientBase and BaseResponse, which includes common fields for all responses.
 class PatientResponse(PatientBase, BaseResponse):
     pass
     
-    class Config:
+class Config:
         from_attributes = True

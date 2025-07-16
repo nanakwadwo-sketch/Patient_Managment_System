@@ -1,54 +1,45 @@
 from typing import List, Optional
-from datetime import datetime
-from utils.file_manager import FileManager
+from sqlalchemy.orm import Session
+from sqlalchemy import and_
+from sqlalchemy.sql import func
 from models.patient import Patient
 from schemas.patient import PatientCreate, PatientUpdate
 
 class PatientRepository:
-    def __init__(self, file_path: str = "data/patients.json"):
-        self.file_manager = FileManager(file_path)
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, patient_data: PatientCreate) -> Patient:
-        data = self.file_manager.read_data()
-        new_id = self.file_manager.generate_id()
-        new_patient = Patient(
-            id=new_id,
-            **patient_data.model_dump(),
-            date_created=datetime.now(datetime.timetz).isoformat()
-        )
-        data.append(new_patient.to_dict())
-        self.file_manager.write_data(data)
-        return new_patient
+        db_patient = Patient(**patient_data.dict())
+        self.db.add(db_patient)
+        self.db.commit()
+        self.db.refresh(db_patient)
+        return db_patient
 
     def get_by_id(self, id: int) -> Optional[Patient]:
-        record = self.file_manager.find_by_id(id)
-        if record:
-            return Patient(**record)
-        return None
+        return self.db.query(Patient).filter(and_(Patient.id == id, Patient.date_deleted.is_(None))).first()
 
     def get_all(self, page: int = 1, page_size: int = 10, name_filter: Optional[str] = None) -> List[Patient]:
-        data = self.file_manager.read_data()
-        active_records = [record for record in data if record.get('date_deleted') is None]
+        query = self.db.query(Patient).filter(Patient.date_deleted.is_(None))
         if name_filter:
-            active_records = [
-                record for record in active_records
-                if name_filter.lower() in record['full_name'].lower()
-            ]
-        start = (page - 1) * page_size
-        end = start + page_size
-        paginated_records = active_records[start:end]
-        return [Patient(**record) for record in paginated_records]
+            query = query.filter(Patient.full_name.ilike(f"%{name_filter}%"))
+        return query.offset((page - 1) * page_size).limit(page_size).all()
 
     def update(self, id: int, patient_data: PatientUpdate) -> Optional[Patient]:
-        data = self.file_manager.read_data()
-        for record in data:
-            if record['id'] == id and record.get('date_deleted') is None:
-                update_data = patient_data.dict(exclude_unset=True)
-                record.update(update_data)
-                record['date_updated'] = datetime.utcnow().isoformat()
-                self.file_manager.write_data(data)
-                return Patient(**record)
-        return None
+        db_patient = self.get_by_id(id)
+        if not db_patient:
+            return None
+        update_data = patient_data.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_patient, key, value)
+        self.db.commit()
+        self.db.refresh(db_patient)
+        return db_patient
 
     def delete(self, id: int) -> bool:
-        return self.file_manager.delete(id)
+        db_patient = self.get_by_id(id)
+        if not db_patient:
+            return False
+        db_patient.date_deleted = func.now()
+        self.db.commit()
+        return True

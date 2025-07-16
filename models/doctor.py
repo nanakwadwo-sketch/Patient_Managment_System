@@ -1,32 +1,22 @@
 from datetime import datetime
 from typing import Optional
 from .base import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
+from models.database import Base
+from datetime import datetime
 
-# This class represents a doctor in the health app.
-class Doctor(BaseModel):
-    def __init__(
-        self,
-        id: int,
-        full_name: str,
-        specialty: str,
-        years_of_experience: int,
-        contact_information: str,
-        date_created: datetime,
-        date_updated: Optional[datetime] = None,
-        date_deleted: Optional[datetime] = None
-    ):
-        super().__init__(id, date_created, date_updated, date_deleted)
-        self.full_name = full_name
-        self.specialty = specialty
-        self.years_of_experience = years_of_experience
-        self.contact_information = contact_information
+# Doctor model to represent the doctor entity in the database
+class Doctor(Base):
+    __tablename__ = "doctors"
 
-    # This method converts the doctor object to a dictionary representation.
-    def to_dict(self):
-        return {
-            **self.base_dict(),
-            "full_name": self.full_name,
-            "specialty": self.specialty,
-            "years_of_experience": self.years_of_experience,
-            "contact_information": self.contact_information
-        }
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String(100), nullable=False)
+    specialty = Column(String(100), nullable=False)
+    years_of_experience = Column(Integer, nullable=False)
+    contact_information = Column(String(20), nullable=False)
+    date_created = Column(DateTime, nullable=False, default=func.now())
+    date_updated = Column(DateTime, nullable=True, onupdate=func.now())
+    date_deleted = Column(DateTime, nullable=True)
+
+   

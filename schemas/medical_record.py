@@ -21,11 +21,7 @@ class MedicalRecordCreate(MedicalRecordBase):
 # class MedicalRecordUpdate to update an existing medical record
 # It inherits from MedicalRecordBase and allows optional updates to all fields.
 class MedicalRecordUpdate(MedicalRecordBase):
-    patient_id: Optional[int] = None
-    diagnosis: Optional[str] = None
-    prescriptions: Optional[str] = None
-    treatment_date: Optional[datetime] = None
-    doctor_notes: Optional[str] = None
+   pass
 
 # class MedicalRecordResponse to represent a medical record in the response
 # It inherits from MedicalRecordBase and BaseResponse, which includes common fields for all responses.
@@ -33,5 +29,5 @@ class MedicalRecordResponse(MedicalRecordBase, BaseResponse):
     pass
     
 
-    class Config:
+class Config:
         from_attributes = True

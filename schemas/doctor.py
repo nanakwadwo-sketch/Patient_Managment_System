@@ -20,10 +20,7 @@ class DoctorCreate(DoctorBase):
 # class DoctorUpdate to update an existing doctor
 # It inherits from DoctorBase and allows optional updates to all fields.
 class DoctorUpdate(DoctorBase):
-    full_name: Optional[str] = None
-    specialty: Optional[str] = None
-    years_of_experience: Optional[int] = None
-    contact_information: Optional[str] = None
+    pass
 
 # class DoctorResponse to represent a doctor in the response
 # It inherits from DoctorBase and BaseResponse, which includes common fields for all responses.
@@ -32,5 +29,5 @@ class DoctorResponse(DoctorBase, BaseResponse):
 
 # class Config to configure the Pydantic model
 # It sets from_attributes to True, which allows the model to be created from attributes.
-    class Config:
+class Config:
         from_attributes = True

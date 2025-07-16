@@ -1,19 +1,17 @@
 from fastapi import APIRouter, Depends, Query, Response
 from typing import List, Optional
+from sqlalchemy.orm import Session
 from schemas.patient import PatientCreate, PatientUpdate, PatientResponse
 from services.patient_service import PatientService
+from models.database import get_db
 
-# This router handles all patient-related endpoints.
-# It includes endpoints for creating, retrieving, updating, and deleting patients.
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
-# This function provides an instance of the PatientService.
-# It is used as a dependency in the route handlers.
-def get_patient_service():
-    return PatientService()
+# Dependency to get the PatientService instance
+def get_patient_service(db: Session = Depends(get_db)):
+    return PatientService(db)
 
-# This function creates a new patient.
-# It validates the patient data and checks if the patient already exists.
+# Endpoint to create a new patient
 @router.post("/", response_model=PatientResponse)
 def create_patient(
     patient: PatientCreate,
@@ -24,14 +22,12 @@ def create_patient(
     response.set_cookie(key="session_id", value=f"session_{result.id}")
     return result
 
-# This function retrieves a patient by their ID.
-# If the patient is not found, it raises a 404 HTTP exception.
+# Endpoint to retrieve a patient by ID
 @router.get("/{patient_id}", response_model=PatientResponse)
 def get_patient(patient_id: int, service: PatientService = Depends(get_patient_service)):
     return service.get_patient(patient_id)
 
-# This function retrieves all patients with optional pagination and name filtering.
-# It returns a list of PatientResponse objects.
+# Endpoint to retrieve all patients with optional filters
 @router.get("/", response_model=List[PatientResponse])
 def get_all_patients(
     page: int = Query(1, ge=1),
@@ -41,8 +37,7 @@ def get_all_patients(
 ):
     return service.get_all_patients(page, page_size, name)
 
-# This function updates an existing patient by their ID.
-# It validates the patient data and checks if the patient exists.
+# Endpoint to update an existing patient
 @router.put("/{patient_id}", response_model=PatientResponse)
 def update_patient(
     patient_id: int,
@@ -51,8 +46,7 @@ def update_patient(
 ):
     return service.update_patient(patient_id, patient)
 
-# This function deletes a patient by their ID.
-# If the patient is not found, it raises a 404 HTTP exception.
+# Endpoint to delete a patient
 @router.delete("/{patient_id}")
 def delete_patient(patient_id: int, service: PatientService = Depends(get_patient_service)):
     service.delete_patient(patient_id)

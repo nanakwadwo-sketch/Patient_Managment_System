@@ -1,44 +1,27 @@
 from datetime import datetime
 from typing import Optional
 from .base import BaseModel
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
+from models.database import Base
+from datetime import datetime
 
-# This class represents a medical record in the health app.
-# It includes fields for patient ID, diagnosis, prescriptions, treatment date, and doctor notes.
-class Patient(BaseModel):
-    def __init__(
-        self,
-        id: int,
-        full_name: str,
-        age: int,
-        gender: str,
-        contact_information: str,
-        address: str,
-        emergency_contact: str,
-        date_created: datetime,
-        date_updated: Optional[datetime] = None,
-        date_deleted: Optional[datetime] = None
-    ):
-        
-        super().__init__(id, date_created, date_updated, date_deleted)
-        self.full_name = full_name
-        self.age = age
-        self.gender = gender
-        self.contact_information = contact_information
-        self.address = address
-        self.emergency_contact = emergency_contact
+
+# Patient model to represent the patient entity in the database
+class Patient(Base):
+    __tablename__ = "patients"
+
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String(100), nullable=False)
+    age = Column(Integer, nullable=False)
+    gender = Column(String(10), nullable=False)
+    contact_information = Column(String(20), nullable=False)
+    address = Column(String(200), nullable=False)
+    emergency_contact = Column(String(20), nullable=False)
+    date_created = Column(DateTime, nullable=False, default=func.now())
+    date_updated = Column(DateTime, nullable=True, onupdate=func.now())
+    date_deleted = Column(DateTime, nullable=True)
 
 
 
-    # This method converts the patient object to a dictionary representation.
-    # It is useful for serialization and storage.
-    def to_dict(self):
-        return {
-            **self.base_dict(),
-            "full_name": self.full_name,
-            "age": self.age,
-            "gender": self.gender,
-            "contact_information": self.contact_information,
-            "address": self.address,
-            "emergency_contact": self.emergency_contact
-        }
-        
+    

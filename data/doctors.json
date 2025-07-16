@@ -8,5 +8,15 @@
         "date_created": "2025-05-13T09:24:04.201264",
         "date_updated": null,
         "date_deleted": null
+    },
+    {
+        "id": 2,
+        "date_created": "2025-07-16T18:12:09.811242+00:00",
+        "date_updated": null,
+        "date_deleted": null,
+        "full_name": "Richard Osei",
+        "specialty": "Pedics",
+        "years_of_experience": 7,
+        "contact_information": "123456789"
     }
 ]

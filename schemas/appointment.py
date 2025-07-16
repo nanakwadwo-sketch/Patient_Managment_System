@@ -10,6 +10,7 @@ class AppointmentStatus(str, Enum):
     SCHEDULED = "Scheduled"
     COMPLETED = "Completed"
     CANCELLED = "Cancelled"
+    
 
 class AppointmentBase(BaseModel):
     patient_id: int
@@ -21,10 +22,8 @@ class AppointmentCreate(AppointmentBase):
     pass
 
 class AppointmentUpdate(AppointmentBase):
-    patient_id: Optional[int] = None
-    doctor_id: Optional[int] = None
-    date_time: Optional[datetime] = None
-    status: Optional[AppointmentStatus] = None
+    pass
+
 
 class AppointmentResponse(AppointmentBase, BaseResponse):
     pass
@@ -32,5 +31,5 @@ class AppointmentResponse(AppointmentBase, BaseResponse):
     
     
 # This class is used to define the configuration for the Pydantic model.
-    class Config:
+class Config:
         from_attributes = True

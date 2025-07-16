@@ -1,86 +1,68 @@
 from typing import List, Optional
 from datetime import datetime
-from utils.file_manager import FileManager
-from models.appointment import Appointment
-from schemas.appointment import AppointmentCreate, AppointmentUpdate, AppointmentStatus
+from sqlalchemy.orm import Session
+from sqlalchemy import and_
+from sqlalchemy.sql import func
+from models.appointment import Appointment, AppointmentStatus
+from schemas.appointment import AppointmentCreate, AppointmentUpdate
 
-# This class is responsible for managing appointments in the health app.
-# It provides methods to create, retrieve, update, and delete appointments.
+
+# AppointmentRepository class to handle database operations for appointments
 class AppointmentRepository:
-    def __init__(self, file_path: str = "data/appointments.json"):
-        self.file_manager = FileManager(file_path)
+    def __init__(self, db: Session):
+        self.db = db
 
-    # This method creates a new appointment.
-    # It generates a new ID for the appointment and adds it to the data file.
+    # Create a new appointment
     def create(self, appointment_data: AppointmentCreate) -> Appointment:
-        data = self.file_manager.read_data()
-        new_id = self.file_manager.generate_id()
-        new_appointment = Appointment(
-            id=new_id,
-            **appointment_data.model_dump(),
-            date_created=datetime.now(datetime.timetz).isoformat()
-        )
-        data.append(new_appointment.to_dict())
-        self.file_manager.write_data(data)
-        return new_appointment
+        db_appointment = Appointment(**appointment_data.dict())
+        self.db.add(db_appointment)
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
 
-    # This method retrieves an appointment by its ID.
-    # If the appointment is not found, it returns None.
+    # Retrieve an appointment by ID
     def get_by_id(self, id: int) -> Optional[Appointment]:
-        record = self.file_manager.find_by_id(id)
-        if record:
-            return Appointment(**record)
-        return None
+        return self.db.query(Appointment).filter(and_(Appointment.id == id, Appointment.date_deleted.is_(None))).first()
 
-    # This method retrieves all appointments with optional pagination and status filtering.
-    # It returns a list of Appointment objects.
+# Retrieve all appointments with optional filters
     def get_all(
         self,
         page: int = 1,
         page_size: int = 10,
         status_filter: Optional[AppointmentStatus] = None
     ) -> List[Appointment]:
-        data = self.file_manager.read_data()
-        active_records = [record for record in data if record.get('date_deleted') is None]
+        query = self.db.query(Appointment).filter(Appointment.date_deleted.is_(None))
         if status_filter:
-            active_records = [
-                record for record in active_records
-                if record['status'] == status_filter
-            ]
-        start = (page - 1) * page_size
-        end = start + page_size
-        paginated_records = active_records[start:end]
-        return [Appointment(**record) for record in paginated_records]
+            query = query.filter(Appointment.status == status_filter)
+        return query.offset((page - 1) * page_size).limit(page_size).all()
 
-    
-    # This method updates an existing appointment by its ID.
-    # It validates the appointment data and checks if the appointment exists.
+# Update an existing appointment
     def update(self, id: int, appointment_data: AppointmentUpdate) -> Optional[Appointment]:
-        data = self.file_manager.read_data()
-        for record in data:
-            if record['id'] == id and record.get('date_deleted') is None:
-                update_data = appointment_data.model_dump(exclude_unset=True)
-                record.update(update_data)
-                record['date_updated'] = datetime.now(datetime.timetz).isoformat()
-                self.file_manager.write_data(data)
-                return Appointment(**record)
-        return None
+        db_appointment = self.get_by_id(id)
+        if not db_appointment:
+            return None
+        update_data = appointment_data.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_appointment, key, value)
+        self.db.commit()
+        self.db.refresh(db_appointment)
+        return db_appointment
 
-    
-    # This method deletes an appointment by its ID.
-    # It marks the appointment as deleted by setting the date_deleted field.
+# Delete an appointment by marking it as deleted
     def delete(self, id: int) -> bool:
-        return self.file_manager.delete(id)
+        db_appointment = self.get_by_id(id)
+        if not db_appointment:
+            return False
+        db_appointment.date_deleted = func.now()
+        self.db.commit()
+        return True
 
-    # This method retrieves an appointment by doctor ID and date/time.
-    # It returns the appointment if found, otherwise returns None.
+# Retrieve an appointment by doctor ID and time
     def get_by_doctor_and_time(self, doctor_id: int, date_time: datetime) -> Optional[Appointment]:
-        data = self.file_manager.read_data()
-        for record in data:
-            if (
-                record['doctor_id'] == doctor_id
-                and record['date_time'] == date_time.isoformat()
-                and record.get('date_deleted') is None
-            ):
-                return Appointment(**record)
-        return None
+        return self.db.query(Appointment).filter(
+            and_(
+                Appointment.doctor_id == doctor_id,
+                Appointment.date_time == date_time,
+                Appointment.date_deleted.is_(None)
+            )
+        ).first()

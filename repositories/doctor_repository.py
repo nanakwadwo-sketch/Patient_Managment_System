@@ -1,66 +1,45 @@
 from typing import List, Optional
-from datetime import datetime
-from utils.file_manager import FileManager
+from sqlalchemy.orm import Session
+from sqlalchemy import and_
+from sqlalchemy.sql import func
 from models.doctor import Doctor
 from schemas.doctor import DoctorCreate, DoctorUpdate
 
-# This class is responsible for managing doctors in the health app.
-# It provides methods to create, retrieve, update, and delete doctors.
 class DoctorRepository:
-    def __init__(self, file_path: str = "data/doctors.json"):
-        self.file_manager = FileManager(file_path)
+    def __init__(self, db: Session):
+        self.db = db
 
-    # This method creates a new doctor.
-    # It generates a new ID for the doctor and adds it to the data file.
     def create(self, doctor_data: DoctorCreate) -> Doctor:
-        data = self.file_manager.read_data()
-        new_id = self.file_manager.generate_id()
-        new_doctor = Doctor(
-            id=new_id,
-            **doctor_data.model_dump(),
-            date_created=datetime.now(datetime.timetz).isoformat()
-        )
-        data.append(new_doctor.to_dict())
-        self.file_manager.write_data(data)
-        return new_doctor
+        db_doctor = Doctor(**doctor_data.dict())
+        self.db.add(db_doctor)
+        self.db.commit()
+        self.db.refresh(db_doctor)
+        return db_doctor
 
-    # This method retrieves a doctor by their ID.
-    # If the doctor is not found, it returns None.
     def get_by_id(self, id: int) -> Optional[Doctor]:
-        record = self.file_manager.find_by_id(id)
-        if record:
-            return Doctor(**record)
-        return None
+        return self.db.query(Doctor).filter(and_(Doctor.id == id, Doctor.date_deleted.is_(None))).first()
 
-    # This method retrieves all doctors with optional pagination and specialty filtering.
-    # It returns a list of Doctor objects.
     def get_all(self, page: int = 1, page_size: int = 10, specialty_filter: Optional[str] = None) -> List[Doctor]:
-        data = self.file_manager.read_data()
-        active_records = [record for record in data if record.get('date_deleted') is None]
+        query = self.db.query(Doctor).filter(Doctor.date_deleted.is_(None))
         if specialty_filter:
-            active_records = [
-                record for record in active_records
-                if specialty_filter.lower() in record['specialty'].lower()
-            ]
-        start = (page - 1) * page_size
-        end = start + page_size
-        paginated_records = active_records[start:end]
-        return [Doctor(**record) for record in paginated_records]
+            query = query.filter(Doctor.specialty.ilike(f"%{specialty_filter}%"))
+        return query.offset((page - 1) * page_size).limit(page_size).all()
 
-    # This method updates an existing doctor by their ID.
-    # It validates the doctor data and checks if the doctor exists.
     def update(self, id: int, doctor_data: DoctorUpdate) -> Optional[Doctor]:
-        data = self.file_manager.read_data()
-        for record in data:
-            if record['id'] == id and record.get('date_deleted') is None:
-                update_data = doctor_data.dict(exclude_unset=True)
-                record.update(update_data)
-                record['date_updated'] = datetime.utcnow().isoformat()
-                self.file_manager.write_data(data)
-                return Doctor(**record)
-        return None
+        db_doctor = self.get_by_id(id)
+        if not db_doctor:
+            return None
+        update_data = doctor_data.dict(exclude_unset=True)
+        for key, value in update_data.items():
+            setattr(db_doctor, key, value)
+        self.db.commit()
+        self.db.refresh(db_doctor)
+        return db_doctor
 
-
-    
     def delete(self, id: int) -> bool:
-        return self.file_manager.delete(id)
+        db_doctor = self.get_by_id(id)
+        if not db_doctor:
+            return False
+        db_doctor.date_deleted = func.now()
+        self.db.commit()
+        return True

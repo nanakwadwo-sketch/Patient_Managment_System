@@ -2,35 +2,31 @@ from datetime import datetime
 from typing import Optional
 from schemas.appointment import AppointmentStatus
 from.base import BaseModel
+from sqlalchemy import Column, Integer, DateTime, Enum
+from sqlalchemy.sql import func
+from models.database import Base
+from datetime import datetime
+import enum
 
 
-# This class represents an appointment in the health app.
-# It includes fields for patient ID, doctor ID, date and time of the appointment, and status of the appointment.
-class Appointment(BaseModel):
-    def __init__(
-        self,
-        id: int,
-        patient_id: int,
-        doctor_id: int,
-        date_time: datetime,
-        status: AppointmentStatus,
-        date_created: datetime,
-        date_updated: Optional[datetime] = None,
-        date_deleted: Optional[datetime] = None
-    ):
- # Initialize the appointment with its ID, patient ID, doctor ID, date and time, status, and timestamps.       
-        super().__init__(id, date_created, date_updated, date_deleted)
-        self.patient_id = patient_id
-        self.doctor_id = doctor_id
-        self.date_time = date_time
-        self.status = status
+# AppointmentStatus Enum to represent the status of an appointment
+class AppointmentStatus(enum.Enum):
+    SCHEDULED = "Scheduled"
+    COMPLETED = "Completed"
+    CANCELLED = "Cancelled"
 
-    # This method converts the appointment object to a dictionary representation.
-    def to_dict(self):
-        return {
-            **self.base_dict(),
-            "patient_id": self.patient_id,
-            "doctor_id": self.doctor_id,
-            "date_time": self.date_time.isoformat(),
-            "status": self.status
-        }
+# Appointment model to represent the appointment entity in the database
+class Appointment(Base):
+    __tablename__ = "appointments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, nullable=False)
+    doctor_id = Column(Integer, nullable=False)
+    date_time = Column(DateTime, nullable=False)
+    status = Column(Enum(AppointmentStatus), nullable=False)
+    date_created = Column(DateTime, nullable=False, default=func.now())
+    date_updated = Column(DateTime, nullable=True, onupdate=func.now())
+    date_deleted = Column(DateTime, nullable=True)
+
+
+   
