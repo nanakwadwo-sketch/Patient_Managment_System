@@ -12,25 +12,25 @@ class DoctorService:
 
     def create_doctor(self, doctor_data: DoctorCreate) -> DoctorResponse:
         doctor = self.repository.create(doctor_data)
-        return DoctorResponse.from_orm(doctor)
+        return DoctorResponse.model_validate(doctor)
 
     def get_doctor(self, doctor_id: int) -> DoctorResponse:
         doctor = self.repository.get_by_id(doctor_id)
         if not doctor:
             raise HTTPException(status_code=404, detail="Doctor not found")
-        return DoctorResponse.from_orm(doctor)
+        return DoctorResponse.model_validate(doctor)
 
 # Retrieve all doctors with optional filters
     def get_all_doctors(self, page: int, page_size: int, specialty_filter: Optional[str] = None) -> List[DoctorResponse]:
         doctors = self.repository.get_all(page, page_size, specialty_filter)
-        return [DoctorResponse.from_orm(doctor) for doctor in doctors]
+        return [DoctorResponse.model_validate(doctor) for doctor in doctors]
 
     # Update an existing doctor
     def update_doctor(self, doctor_id: int, doctor_data: DoctorUpdate) -> DoctorResponse:
         doctor = self.repository.update(doctor_id, doctor_data)
         if not doctor:
             raise HTTPException(status_code=404, detail="Doctor not found")
-        return DoctorResponse.from_orm(doctor)
+        return DoctorResponse.model_validate(doctor)
 
     # Delete a doctor
     def delete_doctor(self, doctor_id: int) -> None:
